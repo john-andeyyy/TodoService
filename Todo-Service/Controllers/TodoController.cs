@@ -38,8 +38,8 @@ namespace Todo_Service.Controllers
             return Ok(new { Data = userTodo });
         }
 
-        [HttpPost("Update")]
-        public IActionResult UpdateTodo([FromBody] TodoDetails newTodo)
+        [HttpPut("Update")]
+        public IActionResult UpdateTodo([FromBody] UpdateTodo newTodo)
         {
             var manager = new TodoManager();
             var isOkay = manager.UpdateTodo(newTodo);
@@ -51,19 +51,19 @@ namespace Todo_Service.Controllers
             return Ok(new { Message = "Todo Updated successfully." });
 
         }
-        [HttpGet("Delete/{Id}")]
+        [HttpDelete("Delete/{Id}")]
         public IActionResult DeleteTodo([FromRoute] int Id)
         {
             var manager = new TodoManager();
             var userTodo = manager.Delete(Id);
-            return Ok(new { Data = userTodo });
+            return Ok(new { Message = "Todo Deleted successfully." });
         }
 
-        [HttpPost("IsCompleted")]
-        public IActionResult IsCompleted([FromBody] int Id, Boolean IsCompleted)
+        [HttpPut("IsCompleted")]
+        public IActionResult IsCompleted([FromBody] UpdateTodo Update)
         {
             var manager = new TodoManager();
-            var isOkay = manager.IsCompleted(IsCompleted, Id);
+            var isOkay = manager.IsCompleted(Update);
             if (!isOkay)
             {
                 return BadRequest(new { Message = "An error occurred while creating the todo." });

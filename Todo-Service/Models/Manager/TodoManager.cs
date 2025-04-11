@@ -87,7 +87,7 @@ namespace Todo_Service.Models.Manager
                 {
 
                     conn.Open();
-                    string query = "SELECT * FROM todo WHERE id = @id AND Status = 'A'";
+                    string query = "SELECT * FROM todos WHERE id = @id AND Status = 'A'";
                     var command = new MySqlCommand(query, conn);
                     command.Parameters.AddWithValue("@id", Id);
                     var reader = command.ExecuteReader();
@@ -117,7 +117,7 @@ namespace Todo_Service.Models.Manager
             return todoDetails;
         }
 
-        public bool UpdateTodo(TodoDetails todo)
+        public bool UpdateTodo(UpdateTodo todo)
         {
             var IsOkay = false;
             using (MySqlConnection conn = GetConnection())
@@ -131,13 +131,16 @@ namespace Todo_Service.Models.Manager
                 Title = @Title,
                 Description = @Description,
                 IsCompleted = @IsCompleted,
-                Status = @Status;";
+                Status = @Status
+            WHERE Id = @Id
+;";
 
                     MySqlCommand sql = new MySqlCommand(query, conn);
                     sql.Parameters.AddWithValue("@Title", todo.Title);
                     sql.Parameters.AddWithValue("@Description", todo.Description);
                     sql.Parameters.AddWithValue("@IsCompleted", todo.IsCompleted);
                     sql.Parameters.AddWithValue("@Status", todo.Status);
+                    sql.Parameters.AddWithValue("@Id", todo.Id);
                     sql.ExecuteNonQuery();
                     IsOkay = true;
                     conn.Close();
@@ -179,7 +182,7 @@ namespace Todo_Service.Models.Manager
             return IsOkay;
         }
 
-        public bool IsCompleted(bool IsCompleted, int Id)
+        public bool IsCompleted(UpdateTodo Update)
         {
 
             var IsOkay = false;
@@ -190,8 +193,8 @@ namespace Todo_Service.Models.Manager
                 {
                     string query = "UPDATE Todos SET IsCompleted = @IsCompleted WHERE Id = @ID";
                     MySqlCommand sql = new MySqlCommand(query, conn);
-                    sql.Parameters.AddWithValue("@Id", Id);
-                    sql.Parameters.AddWithValue("@IsCompleted", IsCompleted);
+                    sql.Parameters.AddWithValue("@Id", Update.Id);
+                    sql.Parameters.AddWithValue("@IsCompleted", Update.IsCompleted);
 
                     sql.ExecuteNonQuery();
                     IsOkay = true;
