@@ -102,7 +102,7 @@ namespace TodoService
                 endpoints.MapControllers();
                 endpoints.MapGet("/", async context =>
                 {
-                    await context.Response.WriteAsync("Welcome to User Service!");
+                    await context.Response.WriteAsync("Welcome to Todo Service!");
                 });
             });
         }
