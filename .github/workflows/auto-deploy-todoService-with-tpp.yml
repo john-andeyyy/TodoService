@@ -42,7 +42,7 @@ jobs:
           Environment=HOST=${{secrets.HOST}}
           Environment=PORT=${{secrets.PORT}}
           Environment=DB_PORT=3306
-          Environment=DB_HOST=localhost
+          Environment=DB_HOST=${{secrets.DB_HOST}}
           Environment=DB_NAME=${{secrets.DB_NAME}}
           Environment=DB_USER=${{secrets.DB_USER}}
           Environment=DB_PASS=${{secrets.DB_PASS}}
