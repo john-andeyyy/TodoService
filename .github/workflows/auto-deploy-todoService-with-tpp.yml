@@ -1,0 +1,70 @@
+# cd /actions-todorunner
+# ./run.sh
+
+name: auto deploy Todo-Service in Ubuntu VM
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-Todo-Service:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Delete Todo-Service folder and clone the repository
+        run: |
+          rm -rf ~/Desktop/Todo-Service
+          git clone https://github.com/john-andeyyy/TodoService.git ~/Desktop/Todo-Service
+
+      - name: Stop the Todo-Service service (if running)
+        run: |
+          sudo systemctl stop Todo-Service.service || true  # Stop if already running
+
+      - name: (Re)create systemd service file
+        run: |
+          sudo bash -c 'cat <<EOF > /etc/systemd/system/Todo-Service.service
+          [Unit]
+          Description=User Service .NET App
+          After=network.target
+
+          [Service]
+          WorkingDirectory=/home/vboxuser/Desktop/Todo-Service
+          ExecStart=/usr/bin/dotnet /home/vboxuser/Desktop/TodoService/Todo-Service/bin/Debug/net6.0/Todo-Service.dll
+          Restart=always
+          RestartSec=5
+          KillSignal=SIGINT
+          SyslogIdentifierTodo-Service
+          User=vboxuser
+          Environment=ASPNETCORE_ENVIRONMENT=Development
+          Environment=HOST=${{secrets.HOST}}
+          Environment=PORT=${{secrets.PORT}}
+          Environment=DB_PORT=3306
+          Environment=DB_HOST=localhost
+          Environment=DB_NAME=${{secrets.DB_NAME}}
+          Environment=DB_USER=${{secrets.DB_USER}}
+          Environment=DB_PASS=${{secrets.DB_PASS}}
+          Environment=EXPIRATION_SECONDS=3600
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF'
+
+          sudo systemctl daemon-reload
+          sudo systemctl enable Todo-Service
+          sudo systemctl start Todo-Service
+
+      - name: Restore dependencies and build the project
+        run: |
+          cd ~/Desktop/Todo-Service
+          dotnet restore
+          dotnet build
+
+      - name: Restart the Todo-Service service
+        run: |
+          sudo systemctl restart Todo-Service.service
+
+      - name: Mark build and deployment as completed
+        run: echo "Build and deployment completed successfully!"
